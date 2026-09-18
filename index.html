@@ -34,6 +34,7 @@
 
     <label for="commentaire">Commentaire</label>
     <textarea id="commentaire" rows="3"></textarea>
+    <button type="button" id="btnDicteeCommentaire" style="background:#34a853;margin-top:6px;padding:8px;font-size:14px;">🎤 Dicter le commentaire</button>
 
     <label for="pieceJointe">Pièce jointe (photo/PDF)</label>
     <input type="file" id="pieceJointe" accept="image/*,application/pdf" capture="environment">
@@ -42,12 +43,13 @@
     <div id="statut"></div>
   </form>
 
-  <script>
+  <script type="module">
     import { fr } from 'https://unpkg.com/chrono-node@2.10.1/dist/esm/index.js';
-    // ⚠️ Remplace par l'URL de ton déploiement Apps Script (se termine par /exec)
+
+    // ⚠️ URL de ton déploiement Apps Script (se termine par /exec)
     const URL_API = 'https://script.google.com/macros/s/AKfycbxVrT5sptdzvvpyM1hQpILDv3l-Ket4eIMMKCo69K61rjAVE1wMkvOyK0D7pMRb_lY/exec';
 
-    document.getElementById('btnDictee').addEventListener('click', function () {
+    function lancerDictee(onResultat) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
         alert('Reconnaissance vocale non supportée sur ce navigateur (utilise Chrome).');
@@ -61,6 +63,18 @@
       reconnaissance.onresult = function (event) {
         const transcript = event.results[0][0].transcript;
         document.getElementById('texteDicte').textContent = '📝 « ' + transcript + ' »';
+        onResultat(transcript);
+      };
+
+      reconnaissance.onerror = function (event) {
+        document.getElementById('texteDicte').textContent = '❌ Erreur : ' + event.error;
+      };
+
+      reconnaissance.start();
+    }
+
+    document.getElementById('btnDictee').addEventListener('click', function () {
+      lancerDictee(function (transcript) {
         const resultats = fr.parse(transcript, new Date(), { forwardDate: true });
         if (resultats.length > 0) {
           const dateDetectee = resultats[0].start.date();
@@ -71,13 +85,13 @@
         } else {
           document.getElementById('message').value = transcript;
         }
-      };
+      });
+    });
 
-      reconnaissance.onerror = function (event) {
-        document.getElementById('texteDicte').textContent = '❌ Erreur : ' + event.error;
-      };
-
-      reconnaissance.start();
+    document.getElementById('btnDicteeCommentaire').addEventListener('click', function () {
+      lancerDictee(function (transcript) {
+        document.getElementById('commentaire').value = transcript;
+      });
     });
 
     function formaterDateTimeLocal(date) {
@@ -137,6 +151,6 @@
         envoyer(null, null, null);
       }
     });
-  <script type="module">
+  </script>
 </body>
 </html>
