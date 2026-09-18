@@ -4,10 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Nouvelle alerte</title>
-<script type="module">
-  import { fr } from 'https://unpkg.com/chrono-node@2.10.1/dist/esm/index.js';
-  window.chrono = { fr };
-</script>
   <style>
     body { font-family: Arial, sans-serif; max-width: 480px; margin: 20px auto; padding: 0 12px; }
     label { display: block; margin-top: 14px; font-weight: bold; }
@@ -47,6 +43,7 @@
   </form>
 
   <script>
+    import { fr } from 'https://unpkg.com/chrono-node@2.10.1/dist/esm/index.js';
     // ⚠️ Remplace par l'URL de ton déploiement Apps Script (se termine par /exec)
     const URL_API = 'https://script.google.com/macros/s/AKfycbxVrT5sptdzvvpyM1hQpILDv3l-Ket4eIMMKCo69K61rjAVE1wMkvOyK0D7pMRb_lY/exec';
 
@@ -64,7 +61,7 @@
       reconnaissance.onresult = function (event) {
         const transcript = event.results[0][0].transcript;
         document.getElementById('texteDicte').textContent = '📝 « ' + transcript + ' »';
-        const resultats = chrono.fr.parse(transcript, new Date(), { forwardDate: true });
+        const resultats = fr.parse(transcript, new Date(), { forwardDate: true });
         if (resultats.length > 0) {
           const dateDetectee = resultats[0].start.date();
           const texteDate = resultats[0].text;
@@ -140,6 +137,6 @@
         envoyer(null, null, null);
       }
     });
-  </script>
+  <script type="module">
 </body>
 </html>
